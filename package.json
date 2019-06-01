@@ -1,0 +1,20 @@
+{
+  "name": "graphql-dynamo-endpoint",
+  "version": "1.0.0",
+  "description": "GraphQL query endpoint in NodeJS on AWS with DynamoDB",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/alexanderjacks/graphql-dynamo"
+  },
+  "keywords": [
+    "graphql",
+    "dynamo",
+    "endpoint"
+  ],
+  "author": "Alex Jacks",
+  "license": "MIT"
+}
