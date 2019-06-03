@@ -16,5 +16,8 @@
     "endpoint"
   ],
   "author": "Alex Jacks",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "graphql": "^14.3.1"
+  }
 }
