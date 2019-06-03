@@ -18,6 +18,7 @@
   "author": "Alex Jacks",
   "license": "MIT",
   "dependencies": {
+    "aws-sdk": "^2.466.0",
     "graphql": "^14.3.1"
   }
 }

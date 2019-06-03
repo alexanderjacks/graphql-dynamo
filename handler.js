@@ -1,3 +1,6 @@
+const AWS = require('aws-sdk');
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
 const {
 	graphql,
 	GraphQLSchema,
@@ -6,8 +9,44 @@ const {
 	GraphQLNonNull
 } = require('graphql')
 
+// sets as a promise, to work with DocumentClient callback syntax
+const promisify = jax => new Promise((resolve, reject) => {
+  jax((error, result) => {
+    if(error) {
+      reject(error)
+    } else {
+      resolve(result)
+    }
+  })
+})
+
+
 // Method to insert first name into the hello msg
-const getGreeting = firstName => `Hello there, ${firstName}.`
+const getGreeting = firstName => promisify(callback =>
+  dynamoDb.get({
+    TableName: process.env.DYNAMODB_TABLE,
+    Key: { firstName },
+  }, callback))
+  .then(result => {
+    if(!result.Item) {
+      return firstName
+    }
+    return result.Item.nickname
+  })
+  .then(name => `Hello, ${name}.`)
+
+
+const changeNickname = (firstName, nickname) => promisify(callback =>
+  dynamoDb.update({
+    TableName: process.env.DYNAMODB_TABLE,
+    Key: { firstName },
+    UpdateExpression: 'SET nickname = :nickname',
+    ExpressionAttributeValues: {
+      ':nickname': nickname
+    }
+  }, callback))
+  .then(() => nickname)
+
 
 // Schema declaration
 const schema = new GraphQLSchema({
@@ -29,6 +68,21 @@ const schema = new GraphQLSchema({
 			}
 		}
 	}),
+	mutation: new GraphQLObjectType({
+    name: 'RootMutationType', // could be any name
+    fields: {
+      changeNickname: {
+        args: {
+          // grabs the user's first name, also nickname
+          firstName: { name: 'firstName', type: new GraphQLNonNull(GraphQLString) },
+          nickname: { name: 'nickname', type: new GraphQLNonNull(GraphQLString) }
+        },
+        type: GraphQLString,
+        // update the nickname
+        resolve: (parent, args) => changeNickname(args.firstName, args.nickname)
+      }
+    }
+  })
 })
 
 // Setting up the GET request for AWS.
